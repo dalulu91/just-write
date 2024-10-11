@@ -25,8 +25,8 @@ class MainWindow(tk.Tk):
         self.config(bg=style.background)
 
         # Layout
-        self.headFrame = HeadFrame(self)
-        self.textFrame = TextFrame(self)
+        self.headFrame = HeadFrame()
+        self.textFrame = TextFrame()
 
         # Header
         self.headFrame.config(bg=style.background)
@@ -38,10 +38,9 @@ class MainWindow(tk.Tk):
 
 
 class HeadFrame(tk.Frame):
-    def __init__(self, mainwindow):
-        super().__init__(mainwindow)
+    def __init__(self):
+        super().__init__()
 
-        self.mainwindow = mainwindow
         style = Style()
 
         title = tk.Label(
@@ -52,10 +51,9 @@ class HeadFrame(tk.Frame):
 
 
 class TextFrame(tk.Frame):
-    def __init__(self, mainwindow):
-        super().__init__(mainwindow)
+    def __init__(self):
+        super().__init__()
 
-        self.mainwindow = mainwindow
         style = Style()
 
         with open("placeholdertext.txt", "r", encoding="utf-8") as file:
@@ -110,6 +108,8 @@ class Controller:
 
         #  TODO: Find out how to reset/unbind default binding.
         #        Ctrl+[1, 2, 3...] doesn't work.
+
+        #  TODO: Idea: Change fontsize of selected text with scrollwheel?
         self.textframe.textarea.bind("<Control-b>", self.make_bold)
         self.textframe.textarea.bind("<Control-e>", self.make_italic)
         self.textframe.textarea.bind("<Control-u>", self.make_underline)
@@ -124,55 +124,62 @@ class Controller:
         self.textframe.textarea.bind("<Button-5>", self.make_color3)
 
     def make_bold(self, _event=None):
-        self.apply_tag("bold")
+        self.toggle_tag("bold")
 
     def make_italic(self, _event=None):
-        self.apply_tag("italic")
+        self.toggle_tag("italic")
 
     def make_underline(self, _event=None):
-        self.apply_tag("underline")
+        self.toggle_tag("underline")
 
     def make_h1(self, _event=None):
-        self.apply_tag("h1")
+        self.toggle_tag("h1")
 
     def make_h2(self, _event=None):
-        self.apply_tag("h2")
+        self.toggle_tag("h2")
 
     def make_h3(self, _event=None):
-        self.apply_tag("h3")
+        self.toggle_tag("h3")
 
     def make_center(self, _event=None):
-        self.apply_tag("center")
+        self.toggle_tag("center")
 
     def make_left(self, _event=None):
-        self.apply_tag("left")
+        self.toggle_tag("left")
 
     def make_right(self, _event=None):
-        self.apply_tag("right")
+        self.toggle_tag("right")
 
     def make_color1(self, _event=None):
-        self.apply_tag("color1")
+        self.toggle_tag("color1")
 
     def make_color2(self, _event=None):
-        self.apply_tag("color2")
+        self.toggle_tag("color2")
 
     def make_color3(self, _event=None):
-        self.apply_tag("color2")
+        self.toggle_tag("color3")
 
-    #  TODO: Find out how to reset/delete previous tag when applying a new one
-    def apply_tag(self, tag_name):
+    def toggle_tag(self, tag_name):
         try:
-            start, end = self.textframe.textarea.tag_ranges(tk.SEL)
-            self.textframe.textarea.tag_add(tag_name, start, end)
-        except Exception as e:
+            start = self.textframe.textarea.index(tk.SEL_FIRST)
+            end = self.textframe.textarea.index(tk.SEL_LAST)
+        except tk.TclError as e:
             print(e)
+            return
 
-    def delete_tag(self, tag_name):
-        try:
-            start, end = self.textframe.textarea.tag_ranges(tk.SEL)
+        current_tags = self.textframe.textarea.tag_names(tk.SEL_FIRST)
+
+        if tag_name in current_tags:
             self.textframe.textarea.tag_remove(tag_name, start, end)
-        except Exception as e:
-            print(e)
+        else:
+            self.textframe.textarea.tag_add(tag_name, start, end)
+
+        # Oppdater SEL-taggen for å reflektere den nåværende markeringen
+        self.textframe.textarea.tag_remove(
+            tk.SEL, "1.0", tk.END
+        )  # Fjern tidligere SEL-markering
+        # Legg til SEL for den nye markeringen
+        self.textframe.textarea.tag_add(tk.SEL, start, end)
 
     def toggleFullscreen(self, _event=None):
         if self.mainwindow.is_fullscreen:
@@ -203,14 +210,6 @@ class Controller:
             self.mainwindow.y = event.y
 
 
-class Document:
-    def __init__(self):
-        self.filename: str
-        self.dateCreated: datetime
-        self.dateModified: datetime
-
-
-# Colors, fonts, styling
 class Style:
     def __init__(self):
         self.windowWidth = "800"
@@ -228,6 +227,13 @@ class Style:
 
         #  TODO: Set 3 font sizes: size1, size2, and size3.
         #        The user can multiply these sizes relatively.
+
+
+class Document:
+    def __init__(self):
+        self.filename: str
+        self.dateCreated: datetime
+        self.dateModified: datetime
 
 
 if __name__ == "__main__":
