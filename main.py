@@ -4,22 +4,19 @@ from datetime import datetime
 
 
 def main():
-    app = MainWindow()
-    head = HeadFrame(app)
-    text = TextFrame(app)
+    style = Style()
+
+    app = MainWindow(style)
+    head = HeadFrame(app, style)
+    text = TextFrame(app, style)
     controller = Controller(app, head, text)
 
     controller.run()
 
 
 class MainWindow(tk.Tk):
-    def __init__(self):
+    def __init__(self, style):
         super().__init__()
-
-        # Document settings
-        self.filename: str
-        self.dateCreated: datetime
-        self.dateModified: datetime
 
         # Colors
         self.DARK = "#121319"
@@ -120,7 +117,7 @@ class Controller:
 
 
 class HeadFrame(tk.Frame):
-    def __init__(self, mainwindow):
+    def __init__(self, mainwindow, style=None):
         super().__init__(mainwindow)
 
         self.mainwindow = mainwindow
@@ -136,7 +133,7 @@ class HeadFrame(tk.Frame):
 
 
 class TextFrame(tk.Frame):
-    def __init__(self, mainwindow):
+    def __init__(self, mainwindow, style=None):
         super().__init__(mainwindow)
 
         self.mainwindow = mainwindow
@@ -176,6 +173,22 @@ class TextFrame(tk.Frame):
         self.textarea.tag_configure(
             "subtitle", font=(self.mainwindow.FONT, self.FONT_SIZE_SUBTITLE, "italic")
         )
+
+
+class Document:
+    def __init__(self):
+        self.filename: str
+        self.dateCreated: datetime
+        self.dateModified: datetime
+
+
+# Colors, fonts, styling
+class Style:
+    def __init__(self):
+        # Colors
+        self.DARK = "#121319"
+        self.LIGHT = "#d5ae88"
+        self.FONT = "AGaramond"
 
 
 if __name__ == "__main__":
