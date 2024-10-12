@@ -9,5 +9,3 @@ The end of Lorem Ipsum is near! Just write is here.
 ![screenshot1.png](https://github.com/dalulu91/just-write/blob/main/screenshot1.png)
 ![screenshot2.png](https://github.com/dalulu91/just-write/blob/main/screenshot2.png)
 ![screenshot3.png](https://github.com/dalulu91/just-write/blob/main/screenshot3.png)
-=======
-![python_4Jf0PsaNSC](https://github.com/user-attachments/assets/34a09ace-daba-423e-9b79-92b5def91183)
